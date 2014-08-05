@@ -12,10 +12,9 @@ exports.run = function(){
 					res(false);
 				}
 		}else{
-			
 			res(false);
 		}
      
-  }
+  };
 
-}
+};

@@ -34,7 +34,7 @@ function mongodb_node_session(values)
 						
 						if (typeof(this.on_save) == "function")
 							{
-								this.on_save(sessionid,data)
+								this.on_save(sessionid,data);
 							}
 						
 						if (session)
@@ -84,7 +84,7 @@ function mongodb_node_session(values)
 						}
 					db.collection('node_sessions').findOne({sessionid: sessionid}, function(err,session){
 						
-						if (session!=null)
+						if (session!==null)
 							{
 								var temp = session.data;
 								session.data = JSON.parse(temp);
@@ -115,14 +115,17 @@ function mongodb_node_session(values)
 								if (typeof(innerthis.on_destroy) == "function")
 										{
 											var session_data = innerthis.get_session(sessionid,function(session){
-												innerthis.on_destroy(sessionid,session_data)
+												innerthis.on_destroy(sessionid,session_data);
 											});
 											
 										}
 								
 								db.collection('node_sessions').remove({sessionid: sessionid},{safe: true}, function(err, records){
 										//console.log('in delete');
-										callback(records);
+										if (typeof(callback) == 'function')
+											{
+												callback(records);
+											}
 									}); 
 							}else{
 								console.log(err);
@@ -148,7 +151,7 @@ function mongodb_node_session(values)
 							var current_timestamp = new Date().getTime();
 							
 							db.collection('node_sessions').find({expires: {$lte: current_timestamp}}).toArray(function(err, results){
-								if (results.length == 0)
+								if (results.length === 0)
 									{
 										callback();
 									}
@@ -163,7 +166,7 @@ function mongodb_node_session(values)
 											{
 												innerthis.destroy_session(result.sessionid,callback);
 											}else{
-												innerthis.destroy_session(result.sessionid,function(){});
+												innerthis.destroy_session(result.sessionid);
 											}
 										
 										
@@ -180,4 +183,4 @@ function mongodb_node_session(values)
 
 module.exports = {
 	session_storage: mongodb_node_session
-}
+};

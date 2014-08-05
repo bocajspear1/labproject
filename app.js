@@ -1,24 +1,32 @@
 // My SocketStream 0.3 app
 
-console.log("Starting!");
+//console.log("Starting!");
 
 var http = require('http'),
     ss = require('socketstream');
 
 
-console.log("Defining Page");
+//console.log("Defining Page");
 // Define a single-page client called 'main'
 ss.client.define('main', {
   view: 'app.html',
   css:  ['libs/reset.css', 'main.css', 'codemirror.css'],
-  code: ['libs/jquery.min.js', 'app', 'libs/codemirror.js'],
+  code: ['libs/jquery.min.js', 'app', 'libs/codemirror.js', 'libs/knockout-3.0.0.js', 'libs/jquery-ui.js'],
   tmpl: '*'
 });
 
-console.log("Setting Route!");
+ss.client.define('switch', {
+  view: 'switch.html',
+});
+
+
 // Serve this client on the root URL
 ss.http.route('/', function(req, res){
   res.serveClient('main');
+});
+
+ss.http.route('/switch', function(req, res){
+  res.serveClient('switch');
 });
 
 // Code Formatters
@@ -32,7 +40,7 @@ if (ss.env === 'production') ss.client.packAssets();
 
 
 
-console.log("Starting server");
+//console.log("Starting server");
 // Start web server
 var server = http.Server(ss.http.middleware);
 server.listen(3000);

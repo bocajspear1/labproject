@@ -24,7 +24,7 @@ function socket_stream_session()
 		this.storage = session_storage;
 		
 		
-		this.run_session = run_session
+		this.run_session = run_session;
 		function run_session(req,res,next)
 			{
 				var innerthis = this;
@@ -87,12 +87,12 @@ function socket_stream_session()
 					session.save = function()
 						{
 							innerthis.save_session(sessionid,session,function(){});
-						}
+						};
 						
 					session.delete = function()
 						{
 							innerthis.delete_session(sessionid);
-						}
+						};
 					
 					callback(session);	
 				});
@@ -134,10 +134,9 @@ exports.run = function(){
 
   return function(req, res, next){
 
-	
 	session.run_session(req,res,next);
 
-  }
+  };
 
-}
+};
 

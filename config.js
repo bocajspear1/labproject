@@ -12,8 +12,12 @@ module.exports = {
 	pool_path: '/home/jacob/labproject-pool',
 	// The path where the ISO storage is. Do not make relative path. Do not put a slash on the end
 	iso_path: '/home/jacob/labproject-isos',
-	// The path where snapsho Do not make will be stored. Do not make relative path. Do not put a slash on the end
+	// The path where snapshots will be stored. Do not make relative path. Do not put a slash on the end
 	snapshot_path: '/home/jacob/labproject-snapshots',
 	// Overrides the location of the libvirt binaries
-	libvirt_path: "/libvirt/sbin/"
+	libvirt_path: "/libvirt/sbin/",
+	
+	can_register: false,
+	// (NOT YET IMPLETMENTED) Indicates what mode LabProject should run in, 'single' which is oriented for a single user, and 'multi' which is oriented for many users 
+	mode: 'multi'
 };

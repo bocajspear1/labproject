@@ -4,7 +4,9 @@
   "version": "0.0.1dev",
   "author": "Jacob Hartman <junyunharold1@gmail.com>",
   "private": true,
-  "engines": { "node": ">= 0.10.0" },
+  "engines": {
+    "node": ">= 0.10.0"
+  },
   "dependencies": {
     "socketstream": "0.3.x",
     "ss-stylus": "0.1.x",
@@ -15,7 +17,12 @@
     "xmlbuilder": "1.0.x",
     "xmldoc": "0.1.x"
   },
-  "scripts":{
-    "start":"node app.js"
+  "scripts": {
+    "start": "node app.js"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.6",
+    "gulp-jshint": "^1.7.1",
+    "should": "^4.0.4"
   }
 }

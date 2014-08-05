@@ -1,108 +1,137 @@
-console.log('Start Includes');
-var auth = require('./client-auth');
-var lab = require('./client-lab');
 var interface = require('./interface');
-console.log('End Start Includes');
+var authentication = require('./client-auth');
+var user = require('./client-user')
+//var virtualization = require('./client-virtualization');
 
-console.log('Starting Interface');
-interface.start();
-console.log('Done Starting Interface');
 
-console.log('Starting Button Stuff');
-interface.button('login-button',function(){
-	var username = $('#username-textbox').val();
-	var password = $('#password-textbox').val();
-	$('#login-button').hide();
-	$('#login-message').html('<img src="/images/wait.gif">');
-	auth.authenticate(username,password, function(result){
-		
-		if (result=='success')
-			{
-				interface.login_overlay_disable();
-				
-				on_login();
-				
-				
-			}else{
-				$('#password-textbox').val('');
-				$('#login-button').show();
-				$('#login-message').html('Error: Failed Login');
-			}
-	});
-});
+interface.init();
 
-interface.button('logout-button',function(){
+authentication.set_log_off(function(){
+	interface.switchPage("Login","div#mainpage");
+})
+
+function Login_Page(){
+	var self = this;
+	self.user = ko.observable();
+	self.password = ko.observable();
 	
-	auth.logout(function(result){
-		alert(result)
-		if (result=='logout')
-			{
-				interface.login_overlay_enable();
-			}else{
-				
-			}
-	});
-});
-
-interface.button('menu_about_button',function(){
-	interface.about_dialog(function(test_dialog){
-		test_dialog.display();
-	});
-	
-});
-
-interface.button('menu_new_lab',function(){
-	
-	lab.check_lab(function(results){
-		if (result===true)
-			{
-				alert('Sure?');
-			}else{
-				alert('New');
-			}
-	});
-	
-});
-
-interface.button('new_device_button',function(){
-	auth.check_device_permissions(function(result){
-			if (result===true)
+	self.login = function(){
+		$('#login-message').hide()
+		authentication.authenticate(self.user(),self.password(),function(result){
+			if (result == 'success')
 				{
-					interface.new_device_dialog(function(new_device){
-						new_device.display();
-					});
+					interface.switchPage("Welcome","div#mainpage");
 				}else{
-					interface.show_banner_alert("You do not have permssions to create new devices","ERROR");
+					if (result == 'fail')
+						{
+							$('#login-message').text("Incorrect username or password.")
+						}else if (result == 'multiple'){
+							$('#login-message').text("You are already logged in elsewhere.")
+						}
+					
+					$('#login-message').fadeIn();
+					setTimeout(function(){
+						$('#login-message').fadeOut();
+					},3000)
 				}
-	});
-});
-
-interface.button('notepad_tab_button',function(){
-	console.log('Clicked!')
-	$(".shown_tab").attr('class', 'hidden_tab');
-	$("#notepad_tab").attr('class', 'shown_tab');
-	$("#notepad_tab").html('<input type="text" id="notepad_textbox"><button>Save</button><button>Load</button><textarea id="insert_codemirror" name="insert_codemirror"></textarea>');
-	var editor = CodeMirror.fromTextArea(document.getElementById('insert_codemirror'));
-});
-
-function on_login()
-	{
-		lab.check_lab(function(result){
-		if (result===true)
-			{
-				interface.show_banner_alert("Loading Lab...","");
-			}else{
-				interface.show_banner_alert("Creating new lab...","");
-			}
+			
 		});
 	}
+	
+	self.init = function(){
+		$('#login-message').hide()
+	}
+	
+	self.init()
+}
+
+interface.newPage({
+	name: 'Login',
+	ViewModel: Login_Page,
+	onInit: function(self,parent){
+		
+	},
+	template: 'login'
+});
 
 
-//var test_dialog = interface.popup_dialog('Test','Welcome to LabProject');
-//test_dialog.display();
 
-	//interface.show_banner_alert("Creating new lab...","");
+interface.newPage({
+	name: 'New_Lab_Dialog_Page',
+	ViewModel: function(){
+		var self = this;
+		self.lab_name = ko.observable();
+	},
+	onInit: function(self,parent){
+		console.log("Open Dialog");
+	},
+	template: 'new_lab_dialog'
+});
+
+interface.newDialog({
+	name: "New_Lab_Dialog",
+	title: "New Lab",
+	page: "New_Lab_Dialog_Page",
+	onClose: function(){
+		alert("Closing");
+	}
+});
 
 
 
+
+function Welcome_Page(){
+	var self = this;
+	self.user = ko.observable();
+	self.full_name = ko.observable();
+	self.init = function(){
+		//user.get_user_info(
+	};
+	self.new_lab = function(){
+		interface.displayDialog("New_Lab_Dialog");
+	};
+	self.open_lab = function(){
+		
+	};
+	self.settings = function(){
+		
+	};
+	self.logout = function(){
+		authentication.logout(function(result){
+			interface.switchPage("Login","div#mainpage");
+		})
+	}
+}
+
+interface.newPage({
+	name: 'Welcome',
+	ViewModel: Welcome_Page,
+	onInit: function(self,parent){
+		
+	},
+	template: 'welcome'
+});
+
+interface.newPage({
+	name: 'Login',
+	ViewModel: Login_Page,
+	onInit: function(self,parent){
+		
+	},
+	template: 'login'
+});
+
+
+
+authentication.check(function(result){
+	if (result===false)
+		{
+			interface.bindPage("Login","div#mainpage");
+			
+		}else if (result !== true){
+			
+		}else{
+			interface.bindPage("Welcome","div#mainpage");
+		}
+});
 

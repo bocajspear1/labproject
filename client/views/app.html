@@ -2,129 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
+    <link href="/jquery-ui-min.css" media="screen" rel="stylesheet" type="text/css">
     <SocketStream/>
-    <title>Welcome</title>
+    <title>LabProject</title>
   </head>
   <body>
-	<div id="login">
-		<div>
-			<h1>LabProject</h1>
-			
-			Username: <input type="text" name="username" id="username-textbox"><br>
-			Password: <input type="password" name="password" id="password-textbox"><br>
-			<button id="login-button">Login In</button>
-			<div id="login-message"></div>
-		</div>
+	<div id="banner-notify"></div>
+	<div id="loading-overlay">Loading LabProject...</div>
+	<div id="mainpage">
+	
 	</div>
-	<div id="loading"></div>
-	<div id="overlay"></div>
-	<div id="overlay-message"></div>
-	<div id="banner-alert">Hi There</div>
-	<div id="dialog"><div id="dialog-title"></div><div id="dialog-content"></div><div id="dialog-buttons"></div></div>
-	
-    <header id="main-menu">
-		<div id="main-menu-inside">
-			<div id="file-menu">
-				<h3>File</h3>
-				<ul>
-					<li><a href="#" id="menu_new_lab">New Lab</a></li>
-					<li><a href="#" id="menu_save_lab">Save Lab</a></li>
-					<li><a href="#" id="menu_load_lab">Load Lab</a></li>
-					<li><a href="#" id="menu_manage_lab">Manage Labs</a></li>
-					<li><a href="#" id="menu_manage_virtual_machines">Manage Virtual Machines</a></li>
-					<li><a href="#" id="menu_manage_virtual_machines">Manage ISOs</a></li>
-				</ul>
-			</div>
-			<div id="settings-menu">
-				<h3>Settings</h3>
-				<ul>
-					<li><a href="#" id="menu_display_settings">Display Settings</a></li>
-					<li><a href="#">Lab Settings</a></li>
-					<li><a href="#">My Profile</a></li>
-					<li><a href="#">LabProject Settings</a></li>
-				</ul>
-			</div>
-			<div id="collaberate-menu">
-				<h3>Collaberate</h3>
-				<ul>
-					<li><a href="#">Invite</a></li>
-					<li><a href="#">Requests</a></li>
-					<li><a href="#">Collaberation Settings</a></li>
-				</ul>
-			</div>
-			<div id="help-menu">
-				<h3>Help</h3>
-				<ul>
-					<li><a href="#">Docs</a></li>
-					<li><a href="#" id="menu_about_button">About</a></li>
-				</ul>
-			</div>
-			<div id="logout-menu">
-				
-				
-					<button id="logout-button">Logout</button>
-					
-			</div>
-			
-		</div>
-	</header>
-	<div id="left-border"></div>
-	<section id="insert-menu-tab">
-		<div id="insert-menu">
-			<h2>End Devices</h2>
-			<ul>
-				<li><a href="#" data-type="pc" class="add_device_button"><img src="/images/pc.png">PC</a></li>
-				<li><a href="#" data-type="server" class="add_device_button"><img src="/images/file_server.png">Server</a></li>
-				<li><a href="#" data-type="traffic_generator" class="add_device_button"><img src="/images/packet.png">Traffic Generator</a></li>
-				<li><a href="#" data-type="service_verifier" class="add_device_button"><img src="/images/packet.png">Service Verifier</a></li>
-			</ul>
-			<h2>Network Devices</h2>
-			<ul>
-				<li><a href="#" data-type="router" class="add_device_button"><img src="/images/router.png">Router</a></li>
-				<li><a href="#" data-type="switch" class="add_device_button"><img src="/images/switch.png">Switch</a></li>
-				<li><a href="#" data-type="firewall" class="add_device_button"><img src="/images/firewall.png">Firewall</a></li>
-			</ul>
-			<h2>Connections</h2>
-			<ul>
-				<li><a href="#"><img src="/images/connection.png">Ethernet</a></li>
-			</ul>
-			
-			<a id="new_device_button" href= "#">Create New Device</a>
-			
-		</div>
-	</section>
-	
-    <section id="main">
-		<section id="main-content">
-			<div id="left">
-				<div id="diagram-holder"></div>
-			</div>
-			<div id="right">
-			<div id="sidebar">
-				<ul id="tab_buttons">
-					<li><a href="#" id="server_tab_button" class="tab_button">Server</a></li>
-					<li><a href="#" id="lab_tab_button" class="tab_button">Lab</a></li>
-					<li><a href="#" id="notepad_tab_button" class="tab_button">Notepad</a></li>
-				</ul>
-				<div id="default_tab" class="shown_tab"></div>
-				<div id="server_tab" class="hidden_tab"></div>
-				<div id="lab_tab" class="hidden_tab"></div>
-				<div id="notepad_tab" class="hidden_tab">
-					<button id="new_notepad">New</button>
-					<button id="load_notepad">Load</button>
-				</div>
-				
-			</div>
-			<div id="chat">
-				<div id="chat-text">
-				
-				</div>
-				<div id="server-messages">
-				</div>
-				<div id="chat-input"><input type="text" id="chat-textbox"></div>
-			</div>
-			</div>
-		</section>
-    </section>
   </body>
 </html>

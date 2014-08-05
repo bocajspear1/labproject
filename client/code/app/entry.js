@@ -6,13 +6,18 @@ var interface = require('./interface');
 window.ss = require('socketstream');
 
 ss.server.on('disconnect', function(){
-	interface.overlay_enable('The connection to the server has been lost, please wait...');
-	console.log('Connection down :-(');
+	interface.enableDisconnectOverlay();
+	console.log('Connection down');
 });
 
 ss.server.on('reconnect', function(){
-	interface.overlay_disable();
-	console.log('Connection back up :-)');
+	interface.disableDisconnectOverlay();
+	console.log('Connection back up');
+});
+
+ss.event.on('switch_session', function(){
+	console.log("Session Switching")
+	window.location = "/switch";
 });
 
 ss.server.on('ready', function(){
