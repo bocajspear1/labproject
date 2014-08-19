@@ -88,7 +88,13 @@ var group_database = {
 function user(username)
 {
 	var self = this;
-	var Private = {};
+	var Private = {
+		username: '',
+		firstname: '',
+		lastname: '',
+		email: '',
+		groups: ''
+	};
 	
 	if (username)
 		{
@@ -146,6 +152,18 @@ function user(username)
 				self = null;
 			});
 		});
+	};
+
+	self.to_json = function(callback){
+		
+		var return_json = Private;
+		
+		if (typeof(callback) == 'function')
+			{
+				callback(return_json);
+			}else{
+				return return_json;
+			}
 	};
 }
 

@@ -39,11 +39,12 @@ var lab_util = {
 				if (result.ERROR)
 					{ 
 						// If there is an error, check if it is indicating that the uuid already exists
-						if (result.ERROR.name == "MongoError" && result.ERROR.code == 11000)
+						if (result.Error.error_message.name == "MongoError" && result.Error.error_message.code == 11000)
 							{
 								lab_util.new_lab(lab_name,username,callback);
 							}else{
-								logging.log(logging.TYPES.CODE_ERROR, result.ERROR);
+								logging.log(logging.TYPES.CODE_ERROR, result.Error);
+								callback(result);
 								return;
 							}
 					}else{
@@ -263,7 +264,7 @@ function lab(id)
 		
 		if (Private.saves[save_name])
 			{
-				callback({"Error":"Save point already exists"});
+				callback({"Error":{"error_message": "SAVE_POINT_EXISTS", "message_type": "CONFIG"}});
 			}else{
 
 				var new_save_point = {};
@@ -305,7 +306,7 @@ function lab(id)
 				// Indicate which snapshot to load to when starting the lab
 				Private.save_id = save_id;
 			}else{
-				callback({"Error": "Save does not exist"});
+				callback({"Error":{"error_message": "SAVE_POINT_NOT_EXIST", "message_type": "CONFIG"}});
 			}
 	};
 	

@@ -1,8 +1,8 @@
 var LABPROJECT_BASE = process.cwd();
 var LABPROJECT_SERVER_LIBS = process.cwd() + "/server/lib";
 
-var user_manager = require(LABPROJECT_SERVER_LIBS +"/user_manager");
-var database = require(LABPROJECT_SERVER_LIBS +"/database");
+var user_manager = require(LABPROJECT_SERVER_LIBS + "/managers/user_manager");
+var database = require(LABPROJECT_SERVER_LIBS +"/util/database");
 
 var should = require("should");
 

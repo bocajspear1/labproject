@@ -135,7 +135,7 @@ var vm_util = {
 							{
 								vm_util.register_new_vm(callback);
 							}else{
-								logging.log(logging.TYPES.CODE_ERROR, result.ERROR);
+								logging.log(logging.TYPES.CODE_ERROR, result.Error);
 								callback(result);
 								return;
 							}
@@ -278,6 +278,8 @@ function virtual_machine(uuid)
 		Private.is_template = false;
 		// Stores of device is actually a container
 		Private.is_container = false;
+		// Stores device permissions
+		Private.permissions = {};
 	/*
 	 *  Private Functions
 	 */
@@ -1242,6 +1244,80 @@ function virtual_machine(uuid)
 				
 				
 			},
+		};
+		
+		self.set_permissions = function(username, permission, setting, callback){
+			
+			var default_permission = {can_edit: false, can_use: false};
+			
+			
+			if (setting !== false && setting !== true)
+				{
+					if (typeof(callback) == 'function')
+						{
+							callback({"Error":{"error_message": "INVALID_SETTING", "message_type": "CONFIG"}});
+						}else{
+							return {"Error":{"error_message": "INVALID_SETTING", "message_type": "CONFIG"}};
+						}
+				}else if(!default_permission.hasOwnProperty(permission)){
+					if (typeof(callback) == 'function')
+						{
+							callback({"Error":{"error_message": "INVALID_PERMISSION", "message_type": "CONFIG"}});
+						}else{
+							return {"Error":{"error_message": "INVALID_PERMISSION", "message_type": "CONFIG"}};
+						}
+				}else{
+					if (!Private.permissions[username])
+						{
+							Private.permissions[username] = default_permission;
+						}
+					Private.permissions[username][permission] = setting;
+				}
+			
+			
+		};
+		
+		self.can = function(username, permission, callback){
+			
+			var valid_permissions = ['can_edit', 'can_use'];
+			
+			if(valid_permissions.indexOf(permision)==-1){
+				if (typeof(callback) == 'function')
+					{
+						callback({"Error":{"error_message": "INVALID_PERMISSION", "message_type": "CONFIG"}});
+						return;
+					}else{
+						return {"Error":{"error_message": "INVALID_PERMISSION", "message_type": "CONFIG"}};
+					}
+			}else{
+				if (Private.permissions[username])
+					{
+						if (Private.permissions[username][permission] === true)
+							{
+								if (typeof(callback) == 'function')
+									{
+										callback(true);
+									}else{
+										return true;
+									}
+							}else{
+								if (typeof(callback) == 'function')
+									{
+										callback(false);
+									}else{
+										return false;
+									}
+							}
+					}else{
+						if (typeof(callback) == 'function')
+							{
+								callback(false);
+							}else{
+								return false;
+							}
+					}
+			}
+			
 		};
 		
 		self.set_ready = function(callback){
