@@ -6,6 +6,8 @@ var user_manager = require(LABPROJECT_SERVER_LIBS + '/managers/user_manager');
 
 var uuid = require('node-uuid');
 
+var sanitize = require(LABPROJECT_SERVER_LIBS + '/util/sanitize');
+var util = require(LABPROJECT_SERVER_LIBS + '/util/util');
 
 var lab_util = {
 	new_lab: function(lab_name, username, callback){
@@ -14,6 +16,8 @@ var lab_util = {
 		
 			var current_time = new Date().getTime();
 
+			lab_name = sanitize.simple_string(lab_name);
+			username = sanitize.simple_string(username);
 
 			var new_lab_object = {
 				lab_id: new_uuid,
@@ -63,7 +67,7 @@ var lab_util = {
 };
 
 
-function lab_share(type, name)
+function lab_share()
 		{
 			var self = this;
 			var Private = {
@@ -87,11 +91,6 @@ function lab_share(type, name)
 					}
 				}
 			}; 
-			
-			if ((type !== 'user' || type !== 'group') || !name)
-				{
-					self = null;
-				}
 			
 			Private.toggle_permission = function(type, name, input){
 				if (input !== false || input !== true || ! Private.permissions[type] || ! Private.permissions[type][name] )
@@ -197,7 +196,7 @@ function lab(id)
 		}
 	
 	Private.name = "";
-	// open, closed
+	// open, running
 	Private.status = "open";
 	Private.description = "";
 
@@ -358,27 +357,56 @@ function lab(id)
 		callback(Private.shares);
 	};
 
-	self.new_share = function(type, name, callback){
-		if ((type == 'user' || type == 'group') && name !== '')
-			{
-				callback(new lab_share(type, name));
-			}else{
-				
-			}
-		
+	self.create_share = function(callback){
+		callback(new lab_share());
 	};
 	
-	self.new_share = function(share, callback){
+	self.set_share = function(name, type, share, callback){
+		
 		if (share instanceof lab_share)
 			{
-				
+				if ((type == 'user' || type == 'group') && name !== '')
+					{
+						if (type=='user')
+							{
+								Private.shares.by_user[name] = share.get;
+							}else if (type =='group'){
+								Private.shares.by_group[name] = share.get;
+							}
+						callback(true);
+					}else{
+						callback({"Error":{"error_message": "DATA_NOT_SET", "message_type": "CONFIG"}});
+					}
 			}else{
-				callback({"Error":"Not a share object"});
+				callback({"Error":{"error_message": "NOT_SHARE_OBJECT", "message_type": "CONFIG"}});
 			}
-	};
-	
-	self.get_share = function(type, name, callback){
 		
+		
+	};
+
+	self.get_share = function(type, name, callback){
+		var return_share = new lab_share();
+		
+		if ((type == 'user' || type == 'group') && name !== '')
+			{
+				if (type=='user'&&Private.shares.by_user[name])
+					{
+						return_share.load(Private.shares.by_user[name]);
+					}else if (type =='group'&&Private.shares.by_group[name]){
+						return_share.load(Private.shares.by_group[name]);
+					}else{
+						return false;
+					}
+					
+				if (typeof callback == 'function')
+					{
+						callback(return_share);
+					}else{
+						return return_share;
+					}
+			}else{
+				callback({"Error":{"error_message": "DATA_NOT_SET", "message_type": "CONFIG"}});
+			}
 	};
 	
 	self.update_share = function(assign_to, assign_type, share, callback){
@@ -406,6 +434,8 @@ function lab(id)
 			}
 	};
 	
+	
+	
 	self.in_lab = function(id, callback){
 		
 	};
@@ -416,18 +446,7 @@ function lab(id)
 	};
 	
 	self.set_owner = function(new_owner, callback){
-		user.get_user(new_owner, function(user_object){
-			if (user_object && user_object.Error)
-				{
-					callback(user_object);
-				}else if (user_object === null){
-					callback({"Error":"User not found"});
-				}else{
-					Private.owner = new_owner;
-					
-					callback(true);
-				}
-		});
+		Private.owner = sanitize.simple_string(new_owner);
 	};
 	
 	self.get_description = function(){
@@ -435,7 +454,7 @@ function lab(id)
 	};
 	
 	self.set_description = function(input){
-		var clean_input = input.replace(/[^ a-zA-Z0-9'"\n\(\)%&.?\-_]/g,"");
+		var clean_input = sanitize.simple_text(input); 
 		
 		Private.description = clean_input;
 	};
@@ -445,7 +464,7 @@ function lab(id)
 	};
 	
 	self.set_name = function(name){
-		Private.name = name.replace(/[^a-zA-Z\-_]/g,"");
+		Private.name = sanitize.simple_string(name);
 	};
 	
 
@@ -564,7 +583,39 @@ module.exports = {
 	get_lab: lab_util.get_lab,
 	new_lab: lab_util.new_lab,
 	
-
+	verify_running_lab: function(lab_id, callback){
+		if (util.is_uuid(lab_id))
+			{
+				database.findOne('labs', {"lab_id": lab_id, "status": "running" }, function(result) {
+					if (result)
+						{
+							callback(true);
+						}else{
+							callback(false);
+						}
+				});
+			}else{
+				callback({"Error":{"error_message": "NOT_UUID", "message_type": "CONFIG"}});
+			}
+		
+	},
+	
+	verify_lab: function(lab_id, callback){
+		if (util.is_uuid(lab_id))
+			{
+				database.findOne('labs', {"lab_id": lab_id }, function(result) {
+					if (result)
+						{
+							callback(true);
+						}else{
+							callback(false);
+						}
+				});
+			}else{
+				callback({"Error":{"error_message": "NOT_UUID", "message_type": "CONFIG"}});
+			}
+	},
+	
 	cleanup: function(){
 		
 	}

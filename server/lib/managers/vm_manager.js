@@ -33,6 +33,8 @@ var default_hypervisor = '';
 
 var diskspace = require('diskspace');
 
+var sanitize = require(LABPROJECT_SERVER_LIBS + '/util/sanitize');
+
 if (config.libvirt_path !== '')
 	{
 		process.env.LIBVIRTD_PATH = config.libvirt_path;
@@ -133,7 +135,7 @@ var vm_util = {
 						// If there is an error, check if it is indicating that the uuid already exists
 						if (result.Error.error_message.name == "MongoError" && result.Error.error_message.code == 11000)
 							{
-								vm_util.register_new_vm(callback);
+								vm_util.register_new_vm(hypervisor_string, callback);
 							}else{
 								logging.log(logging.TYPES.CODE_ERROR, result.Error);
 								callback(result);
@@ -270,6 +272,8 @@ function virtual_machine(uuid)
 		Private.hd = [];
 		// Stores an array of cdrom drives attached to the vm
 		Private.cd = [];
+		// Stores the interfaces attached to the vm
+		Private.interface = [];
 		// Stores the information for the vm display
 		Private.display = {protocol: "", settings: {}};
 		// Stores the xml of the vm
@@ -279,7 +283,10 @@ function virtual_machine(uuid)
 		// Stores of device is actually a container
 		Private.is_container = false;
 		// Stores device permissions
-		Private.permissions = {};
+		Private.permissions = {
+				group: {},
+				user: {}
+		};
 	/*
 	 *  Private Functions
 	 */
@@ -918,22 +925,85 @@ function virtual_machine(uuid)
 									callback({"Error":{"error_message": "DATA_NOT_SET", "message_type": "CONFIG"}});
 									return;
 								}else{
-									config.name = config.name.replace(/[^a-zA-Z0-9_-]/g,"");
 									
-									var cddisk_object = {
-										disk_name: config.name,
-										disk_init_path: config.init_disk_path
-									};
-									Private.cd.push(cddisk_object);
-									callback(true);
+									config.name = sanitize.simple_string(config.name);
+									if (!self.drive.cd_drive_exists(config.name))
+										{
+											var cddisk_object = {
+												disk_name: config.name,
+												disk_init_path: config.init_disk_path
+											};
+											Private.cd.push(cddisk_object);
+											callback(true);
+										}else{
+											callback({"Error":{"error_message": "CD_DRIVE_EXISTS", "message_type": "CONFIG"}});
+										}
+									
 								}
 					}
 			},
+			cd_drive_exists: function(name){
+				for (var i = 0; i < Private.cd.length; i++)
+					{
+						if (Private.cd[i].disk_name == name)
+							{
+								return true;
+							}
+					}
+				return false;
+			},
 			remove_cd_drive : function(name,callback){
 				
-			},
-			insert_cd: function(name,disk_file_path,callback){
+				name = sanitize.simple_string(name);
 				
+
+				for (var i = 0; i < Private.cd.length; i++)
+					{
+						if (Private.cd[i].disk_name == name)
+							{
+								Private.cd[i] = null;
+								callback(true);
+								return;
+							}
+					}
+			
+				callback({"Error":{"error_message": "CD_DRIVE_NOT_FOUND", "message_type": "CONFIG"}});
+					
+				
+				
+			},
+			// LOOK INTO USING DIRECTORIES AS DISKS
+			insert_cd: function(name, disk_file_path,callback){
+				
+				name = sanitize.simple_string(name);
+				
+				for (var i = 0; i < Private.cd.length; i++)
+					{
+						if (Private.cd[i].disk_name == name)
+							{
+								Private.cd[i].disk_init_path = disk_file_path;
+								callback(true);
+								return;
+							}
+					}
+					
+				callback({"Error":{"error_message": "CD_DRIVE_NOT_FOUND", "message_type": "CONFIG"}});
+					
+				
+			},
+			remove_cd: function(name, callback){
+				name = sanitize.simple_string(name);
+				
+				for (var i = 0; i < Private.cd.length; i++)
+					{
+						if (Private.cd[i].disk_name == name)
+							{
+								Private.cd[i].disk_init_path = '';
+								callback(true);
+								return;
+							}
+					}
+				callback({"Error":{"error_message": "CD_DRIVE_NOT_FOUND", "message_type": "CONFIG"}});
 			},
 			add_hard_drive : function(config,callback){
 				var domain;
@@ -953,7 +1023,7 @@ function virtual_machine(uuid)
 									callback({"Error":{"error_message": "DATA_NOT_SET", "message_type": "CONFIG"}});
 									return;
 								}else{
-									config.name = config.name.replace(/[^a-zA-Z0-9_-]/g,"");
+									config.name = sanitize.simple_string(config.name);
 									
 									var size = vm_util.convert_to_kilo(config.size.value,config.size.unit);
 							
@@ -994,9 +1064,17 @@ function virtual_machine(uuid)
 				
 			},
 			remove_hard_drive: function(name,callback){
-				Private.volume.remove_volume(name,callback);
-			},
-			add_interface : function(config,callback){
+				for (var i = 0; i < Private.hd.length; i++)
+					{
+						if (Private.hd[i].disk_name == name)
+							{
+								Private.hd[i] = null;
+							}
+					}
+				
+			Private.volume.remove_volume(name, callback);
+				
+				
 				
 			},
 			get_drives : function(callback){
@@ -1074,6 +1152,40 @@ function virtual_machine(uuid)
 					callback({"Error":{"error_message": e, "message_type": "LIBVIRT"}});
 				}
 			},
+		};
+		
+		self.network = {
+				add_interface: function(number, config, callback){
+					
+					if (config.connection_type != 'inet_connection' && config.connection_type != 'inet_connection')
+						{
+							
+						}
+					
+					if (!self.network.interface_exists)
+						{
+							var interface_obj = {
+								connection_type: config.connection_type,
+								
+							};
+						}else{
+							callback({"Error":{"error_message": "INTERFACE_EXISTS", "message_type": "CONFIG"}});
+						}
+				},
+				remove_interface: function(number, config, callback){
+					
+				},
+				interface_exists: function(number){
+					for (var i = 0; i < Private.interface.length; i++)
+						{
+							if (Private.interface[i].number == number)
+								{
+									return true;
+								}
+						}
+					return false;
+				},
+				
 		};
 		
 		self.snapshot = {
@@ -1246,7 +1358,7 @@ function virtual_machine(uuid)
 			},
 		};
 		
-		self.set_permissions = function(username, permission, setting, callback){
+		self.set_permissions = function(type, name, permission, setting, callback){
 			
 			var default_permission = {can_edit: false, can_use: false};
 			
@@ -1256,28 +1368,38 @@ function virtual_machine(uuid)
 					if (typeof(callback) == 'function')
 						{
 							callback({"Error":{"error_message": "INVALID_SETTING", "message_type": "CONFIG"}});
+							return;
 						}else{
 							return {"Error":{"error_message": "INVALID_SETTING", "message_type": "CONFIG"}};
+						}
+				}else if (type!='group'&&type!='user'){
+					if (typeof(callback) == 'function')
+						{
+							callback({"Error":{"error_message": "INVALID_TYPE", "message_type": "CONFIG"}});
+							return;
+						}else{
+							return {"Error":{"error_message": "INVALID_TYPE", "message_type": "CONFIG"}};
 						}
 				}else if(!default_permission.hasOwnProperty(permission)){
 					if (typeof(callback) == 'function')
 						{
 							callback({"Error":{"error_message": "INVALID_PERMISSION", "message_type": "CONFIG"}});
+							return;
 						}else{
 							return {"Error":{"error_message": "INVALID_PERMISSION", "message_type": "CONFIG"}};
 						}
 				}else{
-					if (!Private.permissions[username])
+					if (!Private.permissions[type][name])
 						{
-							Private.permissions[username] = default_permission;
+							Private.permissions[type][name] = default_permission;
 						}
-					Private.permissions[username][permission] = setting;
+					Private.permissions[type][name][permission] = setting;
 				}
 			
 			
 		};
 		
-		self.can = function(username, permission, callback){
+		self.can = function(type, name, permission, callback){
 			
 			var valid_permissions = ['can_edit', 'can_use'];
 			
@@ -1290,9 +1412,9 @@ function virtual_machine(uuid)
 						return {"Error":{"error_message": "INVALID_PERMISSION", "message_type": "CONFIG"}};
 					}
 			}else{
-				if (Private.permissions[username])
+				if (Private.permissions[name])
 					{
-						if (Private.permissions[username][permission] === true)
+						if (Private.permissions[type][name][permission] === true)
 							{
 								if (typeof(callback) == 'function')
 									{
@@ -1395,6 +1517,10 @@ function virtual_machine(uuid)
 			
 		};
 	
+		self.to_json = function(callback){
+			
+		};
+		
 		if (uuid)
 			{
 				
@@ -1445,7 +1571,7 @@ module.exports = {
 		var version = libvirt.libvirt_version + "";
 		version = version.replace("000",".0");
 		version = version.replace("00",".");
-		if (callback)
+		if (callback && typeof(callback) == "function")
 			{
 				callback(version);
 			}else{
@@ -1480,7 +1606,7 @@ module.exports = {
 			}
 	},
 	get_vm: function(uuid,callback){
-		if (uuid&&uuid.toString().trim()!=='')
+		if (util.is_uuid(uuid))
 			{
 				
 				var vm = new virtual_machine(uuid);

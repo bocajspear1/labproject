@@ -1,0 +1,1 @@
+sudo apt-get install libvirt-bin libvirt-dev virtualbox virtualbox-guest-additions-iso qemu-kvm libxml2-utils openvswitch-switch openvswitch-controller openvswitch-switch openvswitch-datapath-source

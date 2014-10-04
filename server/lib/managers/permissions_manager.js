@@ -7,7 +7,8 @@ var user_manager = require(LABPROJECT_SERVER_LIBS + '/managers/user_manager');
 var default_permissions = {
 	superuser: false,
 	create_group: false,
-	create_device: false
+	create_device: false,
+	create_lab: false
 };
 
 function permissions_object(username)

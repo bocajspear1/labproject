@@ -47,6 +47,13 @@ module.exports = {
 					}else{
 						console.log(colors.warning("! WARNING\n\n"), message, colors.warning("\n\n! END WARNING"));
 					}
+			}else if(type==6){
+				if (typeof message == "string")
+					{
+						console.log(colors.error("! SERVER ERROR: " + message + "\n"));
+					}else{
+						console.log(colors.error("! SERVER ERROR\n\n"), message, colors.error("\n\n! END SERVER ERROR"));
+					}
 			}else{
 				console.log(colors.warning("INVALID TYPE NUMBER"));
 			}
@@ -58,5 +65,6 @@ module.exports = {
 		CODE_ERROR: 3,
 		NOTICE: 4,
 		WARNING: 5,
+		SERVER_ERROR: 6
 	}
 };

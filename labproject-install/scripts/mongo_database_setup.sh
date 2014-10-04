@@ -1,0 +1,1 @@
+mongo labproject ./setup.js

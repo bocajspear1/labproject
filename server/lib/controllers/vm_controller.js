@@ -10,6 +10,7 @@ var permissions = require(LABPROJECT_SERVER_LIBS + "/managers/permissions_manage
 // User and group managment
 var user_manager = require(LABPROJECT_SERVER_LIBS + "/managers/user_manager");
 
+var sanitize = require(LABPROJECT_SERVER_LIBS + '/util/sanitize');
 
 var Current_User = null;
 

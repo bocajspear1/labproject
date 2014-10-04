@@ -8,10 +8,35 @@ var logging = require(LABPROJECT_SERVER_LIBS + "/util/server_log");
 var database = require(LABPROJECT_SERVER_LIBS + '/util/database');
 
 
+
+var exec = require('child_process').exec;
+
+var switch_util = {
+	get_openvswitch_list: function(callback){
+		child = exec('ovs-vsctl list-br', function (error, stdout, stderr) {
+			if (!error)
+				{
+					var lines = stdout.split(/\n/);
+					
+					callback(lines);
+					
+				}else{
+					callback({"Error":{"error_message": error, "message_type": "CONFIG"}});
+				}
+		});
+	}
+};
+
+
 function vswitch(sw_id)
 	{
 		var self = this;
-		var Private = {};
+		var Private = {
+			id: '',
+			interfaces: {
+				
+			},
+		};
 		
 		if (sw_id)
 			{
@@ -20,11 +45,29 @@ function vswitch(sw_id)
 				self = null;
 			}
 		
+
 		self.load = function(){
 			
 		};
 		
+		self.save = function(){
+			
+		};
+		
+		self.state = {
+			start: function(){
+				
+			},
+			stop: function(){
+				
+			}
+		};
+		
 		self.get_switch_info = function(){
+			
+		};
+		
+		self.config_interface = function(interface_number){
 			
 		};
 		
@@ -34,7 +77,7 @@ function vswitch(sw_id)
 
 
 module.exports = {
-	create_switch: function(){
+	new_switch: function(){
 		
 	},
 	get_switch: function(){

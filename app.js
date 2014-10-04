@@ -1,6 +1,8 @@
 // My SocketStream 0.3 app
 
-//console.log("Starting!");
+
+
+
 
 var http = require('http'),
     ss = require('socketstream');

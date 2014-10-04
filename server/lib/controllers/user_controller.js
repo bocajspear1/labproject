@@ -31,12 +31,26 @@ module.exports = {
 	get_user: function(username, callback){
 		if (Current_User !== null)
 			{
-				user_manager.get_user(Current_User, function(result){
+				user_manager.get_user(username, function(result){
 					callback(result.to_json());
 				});
 			}else{
 				callback({"Error": {"error_message": "NO_USER_SET", "error_type": "CONFIG"}});
 			}
 	},
-	//add_user: function(username, config, 
+	add_user: function(username, config, callback){
+		
+	},
+	remove_user: function(username, callback){
+		
+	},
+	modify_user: function(){
+		
+	},
+	update_password: function(username, old_password, new_password, callback){
+		
+	},
+	send_reset_email: function(){
+		
+	},
 };

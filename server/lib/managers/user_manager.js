@@ -6,13 +6,18 @@ var database = require(LABPROJECT_SERVER_LIBS + '/util/database');
 
 var crypto = require(LABPROJECT_SERVER_LIBS + '/util/crypto');
 
+var sanitize = require(LABPROJECT_SERVER_LIBS + '/util/sanitize');
+
 var group_util = {
 	
 };
 
+var SPECIAL_USERS = ['USER_REGISTER', 'LAB_HELPER'];
+
 var user_database = {
 	get_user_data: function(username,callback){
-		database.findOne('users',{username:username},function(result){
+		username = sanitize.simple_string(username);
+		database.findOne('users',{username: username},function(result){
 			if (result&&result.ERROR)
 				{
 					callback(result);
@@ -27,20 +32,27 @@ var user_database = {
 		});
 	},
 	verify_user: function(username,callback){
-		database.find('users',{username:username},{},function(result){
-			if (result&&result.Error)
-				{
-					callback(result);
-				}else{
-					if (result.length===0)
+		username = sanitize.simple_string(username);
+		if (SPECIAL_USERS.indexOf(username)==-1)
+			{
+				callback(true);
+			}else{
+				database.find('users',{username:username},{},function(result){
+					if (result&&result.Error)
 						{
-							callback(false);
+							callback(result);
 						}else{
-							callback(true);
+							if (result.length===0)
+								{
+									callback(false);
+								}else{
+									callback(true);
+								}
 						}
-				}
-			
-		});
+					
+				});
+			}
+		
 	},
 	get_user_list: function(callback){
 		database.find('users',{},{"fields" : {"username": 1, _id: 0}},function(result){
@@ -288,50 +300,56 @@ function group(group_name)
 
 module.exports = {
 	new_user: function(config,callback){
-		if (!config.firstname||!config.lastname||!config.username||!config.email||!config.password)
+		if (SPECIAL_USERS.indexOf(config.username)!=-1)
 			{
-				callback({"Error": {"error_message": "DATA_NOT_SET", "message_type": "CONFIG"}});
+				callback({"Error": {"error_message": "USER_EXISTS", "message_type": "CONFIG"}});
 			}else{
-				// Limit character input
-				config.firstname = config.firstname.replace(/[^a-zA-Z\-_]/,"");
-				config.lastname = config.lastname.replace(/[^a-zA-Z\-_]/,"");
-				config.username = config.username.replace(/[^a-zA-Z\-_]/,"");
-				
-				var salt = crypto.random_hash();
-				var hash = crypto.pbkdf2(config.password,salt);
-				if (!hash.Error)
+				if (!config.firstname||!config.lastname||!config.username||!config.email||!config.password)
 					{
-						var new_user = {
-							username: config.username,
-							firstname: config.firstname,
-							lastname: config.lastname,
-							hash: hash,
-							salt: salt,
-							email: config.email,
-						};
-						
-						database.insert('users', new_user, function(result){
-							if (result.Error)
-								{
-									if (result.Error.error_message.name == "MongoError" && result.Error.error_message.code == 11000)
-										{
-											callback({"Error": {"error_message": "USER_EXISTS", "message_type": "CONFIG"}});
-										}else{
-											callback(result);
-										}
-								}else{
-									var the_user = new user(new_user.username);
-									the_user.load(callback);	
-								}
-						});
-						
+						callback({"Error": {"error_message": "DATA_NOT_SET", "message_type": "CONFIG"}});
 					}else{
-						callback({"Error": {"error_message": hash.Error.error_message, "message_type": "CRYPTO"}});
+						// Limit character input
+						config.firstname = sanitize.simple_string(config.firstname);
+						config.lastname = sanitize.simple_string(config.lastname);
+						config.username = sanitize.simple_string(config.username);
+						
+						var salt = crypto.random_hash();
+						var hash = crypto.pbkdf2(config.password,salt);
+						if (!hash.Error)
+							{
+								var new_user = {
+									username: config.username,
+									firstname: config.firstname,
+									lastname: config.lastname,
+									hash: hash,
+									salt: salt,
+									email: config.email,
+								};
+								
+								database.insert('users', new_user, function(result){
+									if (result.Error)
+										{
+											if (result.Error.error_message.name == "MongoError" && result.Error.error_message.code == 11000)
+												{
+													callback({"Error": {"error_message": "USER_EXISTS", "message_type": "CONFIG"}});
+												}else{
+													callback(result);
+												}
+										}else{
+											var the_user = new user(new_user.username);
+											the_user.load(callback);	
+										}
+								});
+								
+							}else{
+								callback({"Error": {"error_message": hash.Error.error_message, "message_type": "CRYPTO"}});
+							}
+						
+						
+						
 					}
-				
-				
-				
 			}
+		
 	},
 	get_user: function(username,callback){
 		var the_user = new user(username);

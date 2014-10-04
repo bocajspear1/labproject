@@ -5,10 +5,11 @@ var database = require(LABPROJECT_SERVER_LIBS + '/util/database');
 var crypto = require(LABPROJECT_SERVER_LIBS + '/util/crypto');
 var download = require(LABPROJECT_SERVER_LIBS + '/util/download');
 var config = require(LABPROJECT_BASE + "/config");
-var http = require('http');
-var fs = require('fs');
-var url = require('url');
+//var http = require('http');
+//var fs = require('fs');
+//var url = require('url');
 
+var sanitize = require(LABPROJECT_SERVER_LIBS + '/util/sanitize');
 
 var iso_util = {
 	update_new_iso: function(name, storage_path, url_string, hash_method, hash, callback){
@@ -138,7 +139,7 @@ module.exports = {
 																	{
 																		callback(result);
 																	}else{
-																		callback({"Error": {"error_message" : "HASH_NOT_MATCH", "message_type": "FS"}})
+																		callback({"Error": {"error_message" : "HASH_NOT_MATCH", "message_type": "FS"}});
 																	}
 															});
 														}
@@ -156,7 +157,7 @@ module.exports = {
 																	{
 																		callback(result);
 																	}else{
-																		callback({"Error": {"error_message" : "HASH_NOT_MATCH", "message_type": "FS"}})
+																		callback({"Error": {"error_message" : "HASH_NOT_MATCH", "message_type": "FS"}});
 																	}
 															});
 														}
@@ -205,7 +206,7 @@ function add_iso_to_database(info,callback)
 				callback();			
 		});
 	}
-
+/*
 function download_iso(url_string,name,callback)
 	{
 		var download_to = config.iso_path;
@@ -255,3 +256,4 @@ function download_iso(url_string,name,callback)
 		
 		
 	}
+*/

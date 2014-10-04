@@ -29,3 +29,13 @@ To set LabProject up for development:
 4. Install the NodeJS Libvirt bindings from here: https://github.com/c4milo/node-libvirt. The app's folder to link in is the main directory of LabProject
 5. You're all setup!
 
+## File Structure
+
+*Based on the Socketstream folder structure*
+
+* **lib** - LabProject libraries and main files
+  * **controllers** - These scripts interface with the managers, putting together access controls, permissions and management functions. Most security functionality will go here, though it expects the user is authenticated and properly identified.
+  * **managers** - These scripts are basically objects, security is limited to local necessities. Scripts manage creating and getting the objects, with some other base functions.
+  * **util** - Other scripts that mainly help other scripts.
+* **middleware** - Middleware for Socketstream
+* **rpc** - Remote Procedure Calls for front-end Socketstream calls
