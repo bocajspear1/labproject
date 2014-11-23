@@ -74,7 +74,7 @@ var switch_util = {
 		
 	},
 	valid_switch_port: function(input){
-		var switch_interface_regex = /^(fa|eth|gi)[0-9]{1}\/?[0-9]{0,3}$/;
+		var switch_interface_regex = /^(fa|eth|gi)[0-9]{1}\/?[1-9][0-9]{0,2}$/;
 		
 		return switch_interface_regex.test(input);
 	},
@@ -97,9 +97,6 @@ var switch_util = {
 					callback(new callback_error(error_type.CLI_RETURN_ERROR, "Error on command line command", error);
 				}
 		});
-	},
-	get_port_num_from_string: function(port_string){
-		
 	}
 };
 
@@ -126,6 +123,7 @@ function vswitch(sw_id)
 				self = null;
 			}
 		
+		// Load data from database
 		self.load = function(callback){
 			database.findOne("registered_switches", {"sw_id": Private.sw_id}, function(data){
 				if (data !== null){ 
@@ -139,6 +137,7 @@ function vswitch(sw_id)
 			});
 		};
 		
+		// Save data to database
 		self.save = function(callback){
 
 			save_obj = {
@@ -160,23 +159,94 @@ function vswitch(sw_id)
 			
 		};
 		
+		// Add port configuration, and set if the switch is on
 		self.connect_port = function(sw_port, real_port, callback){
-			if (isNaN(sw_port))
+			
+			port_num = Private.get_port_num(sw_port);
+			
+			if (!port_num instanceof callback_error)
+			{
+				if (port_num 
+			}else{
+				callback(port_num);
+			}
+				
+			if (Private.state == "on")
 				{
-					
+					Private.configure_port(sw_port, real_port, callback);
 				}else{
-					
+					callback(true);
 				}
-		}
+		};
 		
+		self.set_port_mode = function(sw_port, mode, callback){
+			if (mode != "trunk" && mode != "access")
+				{
+					callback(new callback_error(error_type.INVALID_SWITCH_SETTING, "Invalid port mode");
+				}
+				
+			
+		};
 		
-		Private.connect_port = function(sw_port, real_port, callback){
+		self.set_vlan = function(sw_port, vlan, callback){
+			if (!isNaN(vlan) && vlan >= 1 && vlan <= 4095 && vlan !== null)
+			{
+				callback(new callback_error(error_type.INVALID_SWITCH_SETTING, "Invalid vlan number");
+				return;
+			}
+		};
+		
+		self.add_trunk_vlans = function(sw_port, vlan_list, callback){
+			
+		};
+		
+		self.remove_trunk_vlans = function(sw_port, vlan_list, callback){
+			
+		};
+		
+		Private.configure_port = function(sw_port, callback){
 			if (switch_util.valid_host_interface(real_port))
 				{
 					switch_util.run_command('ovs-vsctl ' + Private.uuid
 				}
 		};
 		
+		Private.convert_port_string = function(sw_port){
+			var regex = new RegExp(Private.port_prefix + "" + chassis_id + "\/([1-9][0-9]{0,2})"); 
+			var result = regex.match(sw_port);
+			
+			if (result == null && parseInt(result[1]) === NaN)
+			{
+				return null;
+			}else{
+				return parseInt(result[1]);
+			}
+		}
+		
+		Private.get_port_num = function(sw_port){
+			var port_num = null;
+			
+			if (switch_util.valid_switch_port(sw_port)
+				{
+					var parse_result = Private.convert_port_string(sw_port);
+					if (parse_result !== null)
+					{
+						port_num = parse_result;
+					}
+				} else if (!isNaN(sw_port)) {
+					port_num = sw_port;
+				} else {
+					return new callback_error(error_type.INVALID_SWITCH_SETTING, "Invalid port");
+				}
+			
+			// Set limit to 999 ports
+			if (port_num >= 1 && port_num <= 999)
+			{
+				return port_num;
+			}else{
+				return new callback_error(error_type.INVALID_SWITCH_SETTING, "Invalid port number");
+			}
+		};
 		
 		// Configure switchports on actual virtual switch
 		Private.configure_interfaces = function(){
