@@ -5,6 +5,8 @@ var mongodb = require('mongodb');
 var mongoclient = mongodb.MongoClient;
 var mongostring = require(LABPROJECT_BASE + '/config').database_connection_string;
 
+var sanitize = require(LABPROJECT_SERVER_LIBS + '/util/sanitize');
+
 // Holds the database connection
 var db_connection;
 
@@ -38,6 +40,8 @@ function get_connection(callback)
 			}
 	}
 
+
+
 connect_db();
 
 module.exports = {
@@ -70,32 +74,45 @@ module.exports = {
 	 * 	database.find(COLLECTION_NAME, {"Query": "Query"}, {OPTIONS}, function(result){})
 	 */
 	find: function(collection_name,query,options,callback){
-			get_connection(function(db){
-				var fields = {};
-				if (options&&options.fields)
-					{
-						fields = options.fields;
-						options.fields = null;
-					}
-				var cursor = db.collection(collection_name).find(query, fields, options);
-				if (cursor)
-					{
-						cursor.toArray(function(err, query_results){
-						if (err)
-							{
-								callback({"Error": {"error_message": err, "message_type": "DATABASE"}});
-							}else{
-								callback(query_results);
-							}
-								
+		
+		if (typeof callback !== "function")
+			{
+				throw new Error('No callback defined');
+			}
+		
+		get_connection(function(db){
+			var fields = {};
+			if (options&&options.fields)
+				{
+					fields = options.fields;
+					options.fields = null;
+				}
+			var cursor = db.collection(collection_name).find(query, fields, options);
+			
+			if (cursor)
+				{
+					cursor.toArray(function(err, query_results){
+					if (err)
+						{
+							callback(new callback_error(error_type.DATABASE_ERROR, "Error from MongoDB", err));
+						}else{
+							callback(query_results);
+						}
 							
-						});
-					}else{
-						callback(false);
-					}
-			});
+						
+					});
+				}else{
+					throw new Error('Invalid collection name ' + collection_name);
+				}
+		});
 	},
 	findOne: function(collection_name,query,callback){
+		
+		if (typeof callback !== "function")
+			{
+				throw new Error('No callback defined');
+			}
+		
 		get_connection(function(db){
 			var col = db.collection(collection_name);
 			if (col)
@@ -103,7 +120,7 @@ module.exports = {
 					col.findOne(query, function(err, query_results) {
 						if (err)
 							{
-								callback({"Error": {"error_message": err, "message_type": "DATABASE"}});
+								callback(new callback_error(error_type.DATABASE_ERROR, "Error from MongoDB", err));
 							}else{
 								callback(query_results);
 							}
@@ -115,6 +132,12 @@ module.exports = {
 		});
 	},
 	insert: function(collection_name, query,callback){
+		
+		if (typeof callback !== "function")
+			{
+				throw new Error('No callback defined');
+			}
+		
 		get_connection(function(db){
 			var col = db.collection(collection_name);
 			if (col)
@@ -122,7 +145,7 @@ module.exports = {
 					col.insert(query, {safe:true}, function(err, query_results) {
 						if (err)
 							{
-								callback({"Error": {"error_message": err, "message_type": "DATABASE"}});
+								callback(new callback_error(error_type.DATABASE_ERROR, "Error from MongoDB", err));
 							}else{
 								callback(query_results);
 							}
@@ -134,6 +157,12 @@ module.exports = {
 		});
 	},
 	update: function(collection_name, query, update, do_all ,callback){
+		
+		if (typeof callback !== "function")
+			{
+				throw new Error('No callback defined');
+			}
+		
 		get_connection(function(db){
 			var col = db.collection(collection_name);
 			if (col)
@@ -146,7 +175,7 @@ module.exports = {
 					col.update(query, update, options, function(err, query_results) {
 						if (err)
 							{
-								callback({"Error": {"error_message": err, "message_type": "DATABASE"}});						
+								callback(new callback_error(error_type.DATABASE_ERROR, "Error from MongoDB", err));					
 							}else{
 								callback(query_results);
 							}
@@ -159,6 +188,12 @@ module.exports = {
 		});
 	},
 	remove: function(collection_name,query,callback){
+		
+		if (typeof callback !== "function")
+			{
+				throw new Error('No callback defined');
+			}
+		
 		get_connection(function(db){
 			var col = db.collection(collection_name);
 			if (col)
@@ -166,7 +201,7 @@ module.exports = {
 					col.remove(query, {safe:true}, function(err, query_results) {
 						if (err)
 							{
-								callback({"Error": {"error_message": err, "message_type": "DATABASE"}});
+								callback(new callback_error(error_type.DATABASE_ERROR, "Error from MongoDB", err));
 							}else{
 								callback(query_results);
 							}

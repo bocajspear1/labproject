@@ -16,3 +16,5 @@ db.createCollection('isos')
 db.isos.ensureIndex({"name":1},{unique: true});
 db.createCollection('networks')
 db.isos.ensureIndex({"name":1},{unique: true});
+db.createCollection('registered_switches')
+db.isos.ensureIndex({"sw_id":1},{unique: true});

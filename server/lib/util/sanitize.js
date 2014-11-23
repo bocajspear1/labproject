@@ -1,4 +1,8 @@
 module.exports = {
+	// Only allows letters, numbers
+	alphanum_string: function(input){
+		return input.replace(/[^a-zA-Z0-9]/g,"");
+	},
 	// Only allows letters, numbers and - and _, for names
 	simple_string: function(input){
 		return input.replace(/[^a-zA-Z0-9\-_]/g,"");

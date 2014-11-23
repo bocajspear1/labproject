@@ -1,6 +1,6 @@
 
 module.exports = {
-	database_connection_string:'mongodb://localhost:27017/labproject',
+	database_connection_string:'mongodb://labproject_user:labprojectdbstuff2@localhost:27017/labproject',
 	head_port:'1234',
 	server_port: '3000',
 	hypervisors: [

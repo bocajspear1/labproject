@@ -1162,7 +1162,7 @@ function virtual_machine(uuid)
 							
 						}
 					
-					if (!self.network.interface_exists)
+					if (!self.network.interface_exists(number))
 						{
 							var interface_obj = {
 								connection_type: config.connection_type,
@@ -1624,10 +1624,16 @@ module.exports = {
 		if (vm_util.validate_hypervisor(hypervisor)!==false)
 			{
 				vm_util.register_new_vm(hypervisor,function(uuid){
-					var vm = new virtual_machine(uuid);
-					vm.set_name(name,function(result){
-						vm.load(callback);
-					});
+					if (util.is_uuid(uuid))
+						{
+							var vm = new virtual_machine(uuid);
+							vm.set_name(name,function(result){
+								vm.load(callback);
+							});
+						}else{
+							callback(uuid);
+						}
+					
 				});
 			}else{
 				callback({"Error":{"error_message": "INVALID_HYPERVISOR", "message_type": "CONFIG"}});
