@@ -20,18 +20,12 @@ var exec = require('child_process').exec;
 
 var os = require('os');
 
+var command = require(LABPROJECT_SERVER_LIBS + '/util/command');
+
 var switch_util = {
 	get_openvswitch_list: function(callback){
-		child = exec('ovs-vsctl list-br', function (error, stdout, stderr) {
-			if (!error)
-				{
-					var lines = stdout.split(/\n/);
-					
-					callback(lines);
-					
-				}else{
-					callback(new callback_error(error_type.CLI_RETURN_ERROR, "Error from running OpenVSwitch command", error, 2));
-				}
+		command.run("ovs-vsctl", ["list-br"], function (stdout, stderr){
+			callback(stdout);
 		});
 	},
 	register_switch: function(switch_id, is_static, init_size, callback){
@@ -87,18 +81,128 @@ var switch_util = {
 			}else{
 				return false;
 			}
-	},
-	run_command: function(command, callback){
-		child = exec('ovs-vsctl add-br ' + Private.vs_id, function (error, stdout, stderr) {
-			if (!error)
-				{
-					callback({"stdout": stdout, "stderr": stderr});
-				}else{
-					callback(new callback_error(error_type.CLI_RETURN_ERROR, "Error on command line command", error);
-				}
-		});
 	}
 };
+
+
+var ovs = {
+	add_port: function(sw_port, callback){
+		if (switch_util.valid_host_interface(real_port))
+			{
+				command.run('ovs-vsctl',[Private.uuid, sw_port], function(stdout, stderr){
+					if (! stdout instanceof callback_error)
+						{
+							return true;
+						}else{
+							callback(stdout);
+						}
+				});
+			}
+	},
+	remove_port: function(sw_port, callback){
+		
+	},
+	enable_switch: function(callback){
+		
+	},
+	disable_switch: function(callback){
+		
+	}
+};
+
+// switch.port(1).connect_to(
+
+function switch_port(port_num, port_name, switch_running)
+	{
+		// We accept either a single number (1,2 etc.) or full port name (fa0/1, fa0/3, etc). Parse input to ensure we get a number
+			
+		port_num = Private.get_port_num(port_num);
+		
+		if (NaN(port(num) || port_name.trim() == "" || (switch_running !== false && switch_running !== true))
+			{
+				self = new callback_error(error_type.INVALID_SWITCH_SETTING, "Invalid switch port arguments");
+			}else{
+				Private.port_num = port_id;
+				Private.port_name = port_name;
+				Private.switch_running = switch_running;
+			}
+		
+		var self = this;
+		var Private = {
+			port_num: 0,
+			port_name: "",
+			connected_to: "",
+			on: true,
+			mode: "access",
+			vlan: 1,
+			trunk_vlans: [],
+			mirror: false,
+			mirror_to: 0,
+			switch_running: false,
+		};
+		
+		self.connect_port = function(host_port, callback){
+			
+			// Check if the host port (the physical/virtual interface on the host device) is valid
+			if (!switch_util.valid_host_interface(host_port))
+			{
+				callback(new callback_error(error_type.INVALID_SWITCH_SETTING, "Invalid host port");
+				return;
+			}
+			
+			Private.connected_to = host_port;
+			
+			if (Private.switch_running === true)
+				{
+					ovs.add_port(host_port, callback);
+				}else{
+					callback(true);
+				}
+		};
+		
+		self.disconnect_port = function(callback){
+			
+		};
+		
+		self.set_mode = function(mode_string, callback){
+			
+		};
+		
+		self.set_vlan = function(vlan_id, callback){
+			if (!NaN(vlan_id) && vlan_id =< 4095 && vlan_id >= 1)
+				{
+					
+					ovs.set_vlan
+					
+				}else{
+					
+				}
+		};
+		
+		self.get_vlan = function(callback){
+			if (typeof(callback) == "function")
+				{
+					callback(Private.vlan);
+				}else{
+					return Private.vlan;
+				}
+		};
+		
+		self.set_trunk_vlans = function(vlan_list, callback){
+			
+		};
+		
+		self.json = function(){
+			
+		};
+		
+		self.parse = function(){
+			
+		};
+	}
+
+
+
 
 function vswitch(sw_id)
 	{
@@ -160,24 +264,28 @@ function vswitch(sw_id)
 		};
 		
 		// Add port configuration, and set if the switch is on
-		self.connect_port = function(sw_port, real_port, callback){
+		
+		
+		self.disconnect_port = function(sw_port, callback){
 			
 			port_num = Private.get_port_num(sw_port);
 			
 			if (!port_num instanceof callback_error)
 			{
-				if (port_num 
+				if (Private.state == "on")
+					{
+						Private.ovs.remove_port(port_num, function(result){
+							Private.ports[port_num - 1] = null;
+						});
+					}else{
+						Private.ports[port_num - 1] = null;
+					}
 			}else{
-				callback(port_num);
+				callback(new callback_error(error_type.INVALID_SWITCH_SETTING, "Invalid switch port");
 			}
-				
-			if (Private.state == "on")
-				{
-					Private.configure_port(sw_port, real_port, callback);
-				}else{
-					callback(true);
-				}
-		};
+			
+			
+		}
 		
 		self.set_port_mode = function(sw_port, mode, callback){
 			if (mode != "trunk" && mode != "access")
@@ -203,13 +311,17 @@ function vswitch(sw_id)
 		self.remove_trunk_vlans = function(sw_port, vlan_list, callback){
 			
 		};
+
 		
-		Private.configure_port = function(sw_port, callback){
-			if (switch_util.valid_host_interface(real_port))
-				{
-					switch_util.run_command('ovs-vsctl ' + Private.uuid
-				}
-		};
+		Private.port = function(port_id){
+			
+			port_num = Private.get_port_num(sw_port);
+			
+			return {
+				port_id: port_id,
+				
+			};
+		}
 		
 		Private.convert_port_string = function(sw_port){
 			var regex = new RegExp(Private.port_prefix + "" + chassis_id + "\/([1-9][0-9]{0,2})"); 
@@ -248,20 +360,7 @@ function vswitch(sw_id)
 			}
 		};
 		
-		// Configure switchports on actual virtual switch
-		Private.configure_interfaces = function(){
-			//
-			child = exec('ovs-vsctl list-ports ' + Private.sw_id, function (error, stdout, stderr) {
-				if (!error)
-					{
-						var lines = stdout.split(/\n/);
-						
-					}else{
-						callback(new callback_error(error_type.CLI_RETURN_ERROR, "Error from running OpenVSwitch command", error));
-					}
-			});
-			
-		};
+		
 		
 		self.set_port_prefix = function(new_prefix, callback){
 			if (new_prefix == "eth" || new_prefix == "fa" || new_prefix == "gi")
@@ -297,17 +396,7 @@ function vswitch(sw_id)
 			start: function(){
 				if (util.is_uuid(Private.vs_id))
 					{
-						child = exec('ovs-vsctl add-br ' + Private.vs_id, function (error, stdout, stderr) {
-							if (!error)
-								{
-									var lines = stdout.split(/\n/);
-									
-									callback(lines);
-									
-								}else{
-									callback({"Error":{"error_message": error, "message_type": "CONFIG"}});
-								}
-						});
+						
 					}else{
 						
 					}
@@ -317,39 +406,19 @@ function vswitch(sw_id)
 			stop: function(){
 				if (util.is_uuid(Private.vs_id))
 					{
-						child = exec('ovs-vsctl del-br ' + Private.vs_id, function (error, stdout, stderr) {
-							if (!error)
-								{
-									var lines = stdout.split(/\n/);
-									
-									callback(lines);
-									
-								}else{
-									callback({"Error":{"error_message": error, "message_type": "CONFIG"}});
-								}
-						});
+						
 					}else{
 						
 					}
 			}
 		};
 		
-		self.port = {
-			connect: function(port_name, vm_port_name){
-				
-			},
-			set_mode: function(port_name, mode){
-				
-			},
-			set_vlan: function(port_name, vlan_id){
-				
-			},
-			mirror_to: function(port_name, destination_port){
-				
-			},
-			done: function(){
-				
-			}
+		self.port = function(port_name){
+			
+			
+			
+			return new switch_port();
+			
 		};
 		
 		self

@@ -14,6 +14,7 @@ type_list = {
 	"PERMISSION_ERROR": 6,
 	"INVALID_SETTING": 7,
 	"OBJECT_MISCONFIG": 8,
+	"INVALID_INPUT": 9,
 };
 
 function callback_error(type, message, details, priority)

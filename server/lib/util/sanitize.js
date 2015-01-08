@@ -9,15 +9,18 @@ module.exports = {
 	},
 	// For descriptions and sentences, no html
 	simple_text: function(input){
-		return input.replace(/[^ a-zA-Z0-9'"\n\(\)%&.?!#=:\-_]/g,"");
+		input = input.replace(/<[^>]*>/g,"");
+		return input.replace(/[^- a-zA-Z0-9'"\(\)%&.?!@$#=:\_\s]/g,"");
 	},
-	only_boolean: function(input){
-		if (input === true || input === false)
-			{
-				return input;
-			}else{
-				return false;
-			}
+	path: function(input){
+		return input.replace(/[^-a-zA-Z0-9\/._]/g,"");
 	},
+	parameter: function(input){
+		return input.replace(/[^-a-zA-Z0-9_]/g,"");
+	},
+	safe_command: function(input){
+		return input.replace(/[^-a-zA-Z0-9_]/g,"");
+	},
+	
 	
 };

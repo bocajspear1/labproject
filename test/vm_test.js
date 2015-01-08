@@ -19,6 +19,7 @@ describe('VM (By manager):', function (){
 		it('should be a place holder', function(done){
 
 			// Do nothing
+			done()
 		});
 		
 	});
