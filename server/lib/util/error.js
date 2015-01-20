@@ -15,6 +15,8 @@ type_list = {
 	"INVALID_SETTING": 7,
 	"OBJECT_MISCONFIG": 8,
 	"INVALID_INPUT": 9,
+	"RESOURCE_LOCKED": 10,
+	"SWITCH_ERROR": 11,
 };
 
 function callback_error(type, message, details, priority)
@@ -36,7 +38,7 @@ function callback_error(type, message, details, priority)
 			priority: priority,
 			details: details,
 			valid_type: function(){
-				for (value in type_list)
+				for (var value in type_list)
 					{
 						if (type_list[value] == Private.type)
 							{
@@ -45,7 +47,7 @@ function callback_error(type, message, details, priority)
 					}
 				return false;
 			}
-		}
+		};
 		
 		self.message = function(){
 			return Private.message;
@@ -75,7 +77,7 @@ function callback_error(type, message, details, priority)
 							return type;
 						}
 				}
-		}
+		};
 		
 		// Validate the input values
 		
@@ -84,7 +86,7 @@ function callback_error(type, message, details, priority)
 				throw new Error("An error occured while handling an error: Invalid error type");
 			}
 		
-		if (!Private.message || Private.message == "")
+		if (!Private.message || Private.message === "")
 			{
 				throw new Error("An error occured while handling an error: A message must be set");
 			}

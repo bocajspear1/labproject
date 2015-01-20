@@ -1,0 +1,20 @@
+use admin
+db.createUser(
+  {
+    user: "mongo_admin",
+    pwd: "PASSWORD",
+    roles: [ { role: "userAdminAnyDatabase", db: "admin" } ]
+  }
+)
+
+use labproject
+db.createUser(
+    {
+      user: "labproject",
+      pwd: "PASSWORD",
+      roles: [
+         { role: "readWrite", db: "labproject" },
+      ]
+    }
+)
+

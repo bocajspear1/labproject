@@ -48,11 +48,11 @@ describe('sanitize Object:', function(){
 		
 		it('parameter should only allow parameter characters', function(){
 			
-			var l_input = "-a b !@#$% 1 2 /<>\"':"
+			var l_input = "-a b !@#$% 1 2 /<>\"':="
 			
 			var new_input = sanitize.parameter(l_input);
 			
-			new_input.should.equal("-ab12");
+			new_input.should.equal("-ab12=");
 			
 		});
 		

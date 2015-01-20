@@ -14,7 +14,7 @@ module.exports = {
 		if (param instanceof Array)
 			{
 				
-				if (command.trim() == "")
+				if (command.trim() === "")
 					{
 						callback(new callback_error(error_type.INVALID_INPUT, "Command cannot be blank")); 
 						return;
@@ -22,7 +22,7 @@ module.exports = {
 				
 				command_string = command;
 				
-				for (i in param)
+				for (var i in param)
 					{
 						command_string += " " + sanitize.parameter(param[i]);
 					}
@@ -32,6 +32,16 @@ module.exports = {
 						{
 							var stdout_lines = stdout.split(/\n/);
 							var stderr_lines = stderr.split(/\n/);
+							
+							for (var i in stdout_lines)
+								{
+									stdout_lines[i] = stdout_lines[i].trim();
+								}
+							
+							for (var j in stderr_lines)
+								{
+									stdout_lines[j] = stdout_lines[j].trim();
+								}
 							
 							callback(stdout_lines, stderr_lines);
 						}else{
@@ -44,4 +54,4 @@ module.exports = {
 			}
 		
 	}
-}
+};

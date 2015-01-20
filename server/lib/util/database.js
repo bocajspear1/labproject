@@ -7,6 +7,9 @@ var mongostring = require(LABPROJECT_BASE + '/config').database_connection_strin
 
 var sanitize = require(LABPROJECT_SERVER_LIBS + '/util/sanitize');
 
+var callback_error = require(LABPROJECT_SERVER_LIBS + '/util/error').callback_error;
+var error_type = require(LABPROJECT_SERVER_LIBS + '/util/error').error_type;
+
 // Holds the database connection
 var db_connection;
 
@@ -107,7 +110,6 @@ module.exports = {
 		});
 	},
 	findOne: function(collection_name,query,callback){
-		
 		if (typeof callback !== "function")
 			{
 				throw new Error('No callback defined');
@@ -188,6 +190,8 @@ module.exports = {
 		});
 	},
 	remove: function(collection_name,query,callback){
+		
+		
 		
 		if (typeof callback !== "function")
 			{
